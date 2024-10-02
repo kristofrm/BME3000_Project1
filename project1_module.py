@@ -1,9 +1,9 @@
-#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Wed Oct  2 12:08:07 2024
 
-@author: kristofrm
+"""
+BME3000 Project 1 Module
+Function Definitions for ECG Visualization
+Kristof Rohaly-Medved & Sabrina Goslin
 """
 
 #Importing necessary packages
@@ -15,20 +15,22 @@ from matplotlib import pyplot as plt
 #Creating a function to load the data and extract necessary attributes
 def load_data(input_file):
     """
+    This function extracts the necessary parts of the data file and loads them.
+
     Parameters
     ----------
-    input_file : file
-        A file containing multiple types of information.
+    input_file : str of a filename
+        Loads a file containing multiple types of information.
  
     Returns
     -------
-    ecg_voltage : array of floats
+    ecg_voltage : 1D array of floats of size ecg_voltage.
         Array of actual ECG values at each sample.
     fs : int
         The frequency at which samples are taken in a second (250).
-    label_samples : array of ints
-        Indexes at which events occur.
-    label_symbols : array of strs
+    label_samples : 1D array of ints of size ecg_data.
+        Gives all the indices at which events occur.
+    label_symbols : 1D array of strings
         An N or V, representing normal or arrhythmetic events in the whole data set.
     subject_id : str
         Gives the ID of the person being monitored.
@@ -36,7 +38,7 @@ def load_data(input_file):
         Gives the type of electrode used.
     units : str
         Provides units of volts, given as mV.
- 
+        
     """
     # Load data file and print files
     data = np.load(input_file)
@@ -58,48 +60,51 @@ def load_data(input_file):
 
 #Writing a function to plot the raw data
 def plot_raw_data(signal_voltage, signal_time, units='V', title=''):
-    """
-    Parameters
-    ----------
-    signal_voltage : array of floats
-        Array of size ecg_voltage, gives voltage values at given samples.
-    signal_time : array of floats
-        Array of size ecg_voltage, puts time in seconds on the x-axis.
-    units : str, optional
-        Gives the units of ECG values. The default is 'V'.
-    title : str, optional
-        Provides a title for the plot. The default is ''.
- 
-    Returns
-    -------
-    None.
- 
-    """
-    plt.plot(signal_time, signal_voltage, label=f'Signal ({units})', color='b')
+   """
+   This function plots the extracted data from the last function as a raw signal.
+   
+   Parameters
+   ----------
+   signal_voltage : array of floats of size ecg_voltage
+       Gives voltage values at given samples.
+   signal_time : array of floats of size ecg_voltage
+       Gives time in seconds on the x-axis.
+   units : str, optional
+       Gives the units of ECG values. The default is 'V'.
+   title : str, optional
+       Provides a title for the plot. The default is ''.
+
+   Returns
+   -------
+   None.
+   
+   """
+   plt.plot(signal_time, signal_voltage, label=f'Signal ({units})', color='b')
     
     #Annotating the plot
-    plt.xlabel('Time (seconds)')
-    plt.ylabel(f'Voltage ({units})')
-    plt.title(title)
-    plt.grid(True)
-    plt.legend()
-    
+   plt.xlabel('Time (seconds)')
+   plt.ylabel(f'Voltage ({units})')
+   plt.title(title)
+   plt.grid(True)
+   plt.legend()
     
 #%% Part 3: Plotting events
     
 #Define a function to plot the events
 def plot_events(label_samples, label_symbols, signal_time, signal_voltage):
     """
+    This function plots the normal and arrhythmic events together. 
+    
     Parameters
     ----------
-    label_samples : array of ints
-        1D array of 3661 indexes at which events occur.
-    label_symbols : array of strings
-        An array size of label_samples filled with N or V, representing normal or arrhythmetic events in the whole data set.
+    label_samples : 1D array of ints of size ecg_data.
+        Gives all the indices at which events occur.
+    label_symbols : 1D array of strings
+        An N or V, representing normal or arrhythmetic events in the whole data set.
     signal_time : float
         Time in seconds.
-    signal_voltage : array of floats
-        Array size of ecg_data, gives voltage values at given samples.
+     signal_voltage : 1D array of floats of size ecg_data
+         Gives voltage values at given samples.
  
     Returns
     -------
@@ -122,25 +127,28 @@ def plot_events(label_samples, label_symbols, signal_time, signal_voltage):
     #Give the plot a legend in the lower right corner
     plt.legend(loc='lower right')
     
-#%% Part 4: Extracting Trials
+#%% Part 4: Extracting Trials #CHECK THIS DOCSTRING
     
 #Define a function to extract trials
-#Create a function to extract trials
-#note: trial_sample_count = # samples each trial should have (# columns)
+#peronsal note: trial_sample_count = # samples each trial should have (# columns)
 def extract_trials(signal_voltage, trial_start_samples, trial_sample_count):
     """
+    This function extracts trials from the ecg_voltages, placing a 'trial' a half second before
+    and after the event occurs. It creates an array of voltage values corresponding to events
+    and the sample at which the event occurs. 
+    
     Parameters
     ----------
-    signal_voltage : array
-        Array of size ecg_data that gives signal voltages at given samples.
-    trial_start_samples : TYPE
-        DESCRIPTION.
-    trial_sample_count : int = 250
-        Number of samples per 1 second interval (equal to sampling frequency). Specifies number of columns for trials array
+    signal_voltage : 1D array of floats of size ecg_data
+        Gives voltage values at given samples.
+    trial_start_samples : array of ints
+        An array of each index at which a trial sample starts.
+    trial_sample_count : int (250)
+        Number of samples per 1 second interval (equal to sampling frequency). Specifies number of columns for trials array.
     Returns
     -------
     trials : array of floats
-        2D array of ecg voltage values. Rows = number of events, columns = ecg voltage sample
+        2D array of ecg voltage values. Rows = number of events, columns = ecg voltage sample.
  
     """
     
@@ -158,14 +166,18 @@ def extract_trials(signal_voltage, trial_start_samples, trial_sample_count):
 #Create a function that plots means and standard deviations of ab/normal events
 def plot_mean_and_std_trials(signal_voltage, label_samples, label_symbols, trial_duration_seconds, fs, units, title):
     """
+    This function plots the means and standard deviations of normal and arrhythmic events.
+    The mean of every single normal event and every single arrhythmic event is calculated
+    and plotted, as is the standard deviation of both event categories.
+    
     Parameters
     ----------
-    signal_voltage : array
-        An aarray of size ecg_data filled with the value of signal voltage at given sample.
-    label_samples : array
-        An array of the size of ecg_data filled with indices at which events occur.
-    label_symbols : array
-        An array the size of ecg_data filled with N or V representing normal or arrhythmic events.
+    signal_voltage : 1D array of floats of size ecg_data
+        Gives voltage values at given samples.
+    label_samples : 1D array of ints of size ecg_data.
+        Gives all the indices at which events occur.
+    label_symbols : 1D array of strings
+        An N or V, representing normal or arrhythmetic events in the whole data set.
     trial_duration_seconds : int
         Value of how long the trial lasts (1 second).
     fs : int
@@ -178,11 +190,11 @@ def plot_mean_and_std_trials(signal_voltage, label_samples, label_symbols, trial
     Returns
     -------
     symbols : 1D array of strs
-        An array containing strings of either an N or V, corresponding to normal or abnormal event.
-    trial_time : 1D array of floats
-        Gives a 1D array of 250 times between -0.5 and 0.5 seconds.
-    mean_trial_signal : 2D array of size 2X250 that gives mean signal values at each sample.
-        Gives a 2D array of size 2x250 giving the means of each column for the n and v trials.
+    Strings of either an N or V, corresponding to normal or abnormal event.    
+    trial_time : 1D array of floats, size of fs
+        Gives 250 time samples between -0.5 and 0.5 seconds.
+    mean_trial_signal : 2D array of size 2X250.
+        Gives the means of each column for the n and v trials.
  
     """
     
@@ -230,13 +242,16 @@ def plot_mean_and_std_trials(signal_voltage, label_samples, label_symbols, trial
 
 def save_means(symbols, trial_time, mean_trial_signal, out_filename):
     """
+    This function saves the means and standard deviations as determined in the
+    last function as an npz file. 
+    
     Parameters
     ----------
-    symbols : 1D array of strings of size 2x1
-        Gives either an N or V.
-    trial_time : 1D array of floats, size 250x1
+    symbols : 1D array of strs
+    Strings of either an N or V, corresponding to normal or abnormal event.    
+    trial_time : 1D array of floats, size of fs
         Gives 250 time samples between -0.5 and 0.5 seconds.
-    mean_trial_signal : 2D array of floats of size 2X250.
+    mean_trial_signal : 2D array of size 2X250.
         Gives the means of each column for the n and v trials.
     out_filename : string
         Gives the name of the output file created.
@@ -249,6 +264,4 @@ def save_means(symbols, trial_time, mean_trial_signal, out_filename):
     
     # Save data as npz file
     np.savez(out_filename, symbols=symbols, trial_time=trial_time, mean_trial_signal=mean_trial_signal)
-    
-    
     

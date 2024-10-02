@@ -1,11 +1,10 @@
-#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 """
 BME3000 Project 1
 Visualizing ECG Data of Normal and Arrhythmic Events
 Kristof Rohaly-Medved & Sabrina Goslin
-Due 10/4/24
+Due 10/03/24
 """
 
 #Importing necessary packages
@@ -13,10 +12,8 @@ import numpy as np
 from matplotlib import pyplot as plt
 import project1_module as p1m
 
-
 #Naming the file
 filename = 'ecg_e0103_half1.npz'
-
 
 #Call the function
 ecg_voltage, fs, label_samples, label_symbols, subject_id, electrode, units = p1m.load_data(filename)
@@ -36,7 +33,7 @@ p1m.plot_raw_data(ecg_voltage, ecg_time, 'V', f'ECG Voltage vs. Time\nSubject ID
 
 #%% Part 3: Plotting events
 
-#Call the function, set a x limits to display two normal and one arrhythmic event
+#Call the function, set x limits to display two normal events and one arrhythmic event
 p1m.plot_events(label_samples, label_symbols, ecg_time, ecg_voltage)
 plt.xlim(1890,1900)
 
@@ -53,16 +50,17 @@ event_samples_v = label_samples[label_symbols == unique_labels[1]]
 n_start_indices = np.zeros(len(event_samples_n), dtype=int)
  
 #Loop through each value to get starting indices for each event (event_index - 250/2)
-for i, event_index in enumerate(event_samples_n): #Got idea to use enumerate function from ChatGPT
-    n_start_indices[i] = max(event_index - samples_per_second/2, 0) ## Got idea to use max function from ChatGPT
-#Create an array filled with zeros as long as amount of arrhythmic events
+for i, event_index in enumerate(event_samples_n): #Got idea to use enumerate function from ChatGPT, modified on our own.
+
+    n_start_indices[i] = max(event_index - samples_per_second/2, 0) # Got idea to use max function from ChatGPT, implemented indepenedently.
+    
+#Create an array filled with zeros as long as the amount of arrhythmic events
 v_start_indices = np.zeros(len(event_samples_v), dtype=int)
  
-#Loop through each value to get starting indices for each event
+#Loop through each value to get starting indices for each event (event_index - 250/2)
 for i, event_index in enumerate(event_samples_v):
     v_start_indices[i] = max(event_index - samples_per_second/2, 0)
     
- 
 #Call function for n and v event
 n_trials = p1m.extract_trials(ecg_voltage, n_start_indices, samples_per_second)
 v_trials = p1m.extract_trials(ecg_voltage, v_start_indices, samples_per_second)
@@ -85,7 +83,7 @@ else:
     print('The lengths of event_samples_n and event_samples_v do not match the respective trial arrays.')
 print()
 
-#Specific time of event is arbitrary. Used 0-1 second interval to display both events together
+#Specific time of event is arbitrary. Used 0-1 second interval to display both events together.
 trial_times_plot = np.arange(-0.5,0.5,dt)
 
 #Creating a second plot of data from trials N and V
@@ -143,6 +141,3 @@ plt.figure(2)
 plt.savefig(f'ecg_voltage_over_time_for_single_n&v_event_subject_{subject_id}.png')
 plt.figure(3)
 plt.savefig(f'ecg_voltage_over_time_mean_and_std_for_n&v_events_subject_{subject_id}.png')
-
-
-
